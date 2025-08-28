@@ -6,11 +6,15 @@ const feedback = document.getElementById("feedback");
 let currentWord = "";
 let correctTranslation = "";
 
-// Ambil kata random dari API
+// Ambil kata random dari API + filter panjang kata biar gampang
 async function getRandomWord() {
-  const res = await fetch("https://random-word-api.herokuapp.com/word?number=1");
-  const data = await res.json();
-  return data[0]; // ambil kata pertama
+  let word = "";
+  do {
+    const res = await fetch("https://random-word-api.herokuapp.com/word?number=1");
+    const data = await res.json();
+    word = data[0];
+  } while (word.length > 6); // kalau kepanjangan, ulang lagi
+  return word;
 }
 
 // Translate kata Inggris ke Indonesia
