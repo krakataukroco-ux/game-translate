@@ -1,19 +1,19 @@
-const words = ["cat", "dog", "book", "house", "car", "tree", "love", "friend"];
-let currentWord = "";
-let correctTranslation = "";
-
 const questionEl = document.getElementById("question");
 const form = document.getElementById("answerForm");
 const input = document.getElementById("answer");
 const feedback = document.getElementById("feedback");
 
-// Ambil kata random
-function getRandomWord() {
-  const randomIndex = Math.floor(Math.random() * words.length);
-  return words[randomIndex];
+let currentWord = "";
+let correctTranslation = "";
+
+// Ambil kata random dari API
+async function getRandomWord() {
+  const res = await fetch("https://random-word-api.herokuapp.com/word?number=1");
+  const data = await res.json();
+  return data[0]; // ambil kata pertama
 }
 
-// Ambil terjemahan via API
+// Translate kata Inggris ke Indonesia
 async function getTranslation(word) {
   const res = await fetch(`https://api.mymemory.translated.net/get?q=${word}&langpair=en|id`);
   const data = await res.json();
@@ -22,17 +22,19 @@ async function getTranslation(word) {
 
 // Setup pertanyaan baru
 async function newQuestion() {
-  currentWord = getRandomWord();
+  currentWord = await getRandomWord();
   correctTranslation = await getTranslation(currentWord);
+
   questionEl.textContent = `Terjemahkan kata ini: "${currentWord}"`;
   feedback.textContent = "";
   input.value = "";
 }
 
-// Cek jawaban
+// Cek jawaban user
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const userAnswer = input.value.trim().toLowerCase();
+
   if (userAnswer === correctTranslation) {
     feedback.textContent = "✅ Jawaban benar!";
     feedback.style.color = "lime";
@@ -40,7 +42,8 @@ form.addEventListener("submit", (e) => {
     feedback.textContent = `❌ Salah! Jawaban benar: ${correctTranslation}`;
     feedback.style.color = "red";
   }
-  setTimeout(newQuestion, 2000); // lanjut soal berikut setelah 2 detik
+
+  setTimeout(newQuestion, 2000); // lanjut soal baru setelah 2 detik
 });
 
 // Mulai game
